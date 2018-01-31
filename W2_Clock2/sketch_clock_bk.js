@@ -8,7 +8,7 @@ function setup() {
 
 
 function draw() {
-	background('red');
+	background('white');
 	
 	var s = second();
 	var m = minute();
@@ -25,7 +25,6 @@ function draw() {
 	// First change the mode to degrees (default is radians)
 	
 	  // Map the function minute() to values from 0~360
-	push()
 	angleMode(DEGREES);// capital DEGREES
 	var s = second();
 	var s1 = 180
@@ -77,7 +76,23 @@ function draw() {
 	text(h,0,0);
 	ellipse(0,0,10,10)
 	pop();
+	
+    push()
+	angleMode(DEGREES);// capital DEGREES
+	var m = minute();
+	var m1 = 180
+	var m2 = 180
+	push(); 
+	strokeWeight(2);
+	translate(m1,m2);
+	rotate(map(minute(),0,60,0,360));
+	line(0,0,0,-150);
+	rect(0,0,5,map(minute(),0,60,0,150));
+	textSize(20);
+	fill(0);
+	text(s,0,0)
+	ellipse(0,0,3,3)
+	pop();
 
-	// put drawing code here
 }
 
