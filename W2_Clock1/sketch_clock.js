@@ -1,5 +1,5 @@
 function setup() {
-  createCanvas(800, 800);
+  createCanvas(600,600);
 }
 
 
@@ -10,10 +10,10 @@ function setup() {
 function draw() {
 	background('red');
 
-	var x = 800
-	var y = 800
-	var p = 48
-	var q = 40
+	var x = 600
+	var y = 600
+	var p = 60
+	var q = 48
 	var a = 10
 	
 	var s = second();
