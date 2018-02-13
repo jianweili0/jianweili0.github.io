@@ -1,4 +1,6 @@
 var myCanvas;
+var str = 'P5.js'
+var result = str.link("https://p5js.org/")
 
 function setup(){
 	// use a variable to store a pointer to the canvas as below
@@ -7,6 +9,9 @@ function setup(){
 }
 
 function draw(){
+	var str = 'P5.js'
+	var result = str.link("https://p5js.org/")
+
 	
 	background(237,34,93)
 
