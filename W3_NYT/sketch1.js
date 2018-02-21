@@ -1,6 +1,7 @@
 var headlines=[];
 var desFacets = [];
 var perFacets = [];
+var deFwords = []
 var Facets = []
 var tSize = 10
 var maxHeadLen, minHeadLen;
@@ -25,8 +26,23 @@ function setup(){
 	//noLoop();
 	console.log(nytResponse)
 	extractHeadlines();
+  makewords();
 }
 
+
+
+function makewords(){
+  for (var i = 0; i<desFacets.length; i++){ 
+    // toString() make input into string
+    var def = desFacets[i].toString().split(",");
+    // console.log(def)
+    
+    // // console.log(deF)
+    append(deFwords,def)
+    // console.log(1212)
+  }
+  console.log(deFwords)
+}
 function draw() {
   background(0);
 
