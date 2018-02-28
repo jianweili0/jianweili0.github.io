@@ -22,13 +22,14 @@ function preload(){
 }
 
 function setup(){
-	createCanvas(600,1000);
-	background(0)
-	textSize(tSize)
-	textAlign(LEFT,TOP)
-	//noLoop();
-	console.log(nytResponse)
-	extractHeadlines();
+  frameRate(4)
+  createCanvas(600,1000);
+  background(0)
+  textSize(tSize)
+  textAlign(LEFT,TOP)
+  //noLoop();
+  console.log(nytResponse)
+  extractHeadlines();
   makewords();
 }
 
@@ -38,51 +39,38 @@ function setup(){
 function draw() {
   background(0);
   translate(margin, margin);
-
-
-
   for (var i = 0; i < headlines.length; i++) {
 
-    var rectwidth = map(headlines[i].length,minHeadLen, maxHeadLen, margin, width-margin*2);
-    if (mouseX > margin && mouseX < margin+rectwidth && mouseY < margin+i*lineheight && mouseY > margin+i*lineheight+(-1*rectheight)) {
-      fill(255, 204, 0);
-      textSize(7);
-      text(headlines[i], 0, (i-1)*lineheight); // orange
-    } else {
-      fill(0,0,0);
-    }
-    //rect(0, i*lineheight, rectwidth,-1*rectheight)
-    //console.log(200)
+  var rectwidth = map(headlines[i].length,minHeadLen, maxHeadLen, margin, width-margin*2);
+  if (mouseX > margin && mouseX < margin+rectwidth && mouseY < i*lineheight && mouseY > i*lineheight+(-1*rectheight)) {
 
-    textSize(7);
-    text(headlines[i], 0, (i-1)*lineheight);
-  }
+    //rect(0, i*lineheight, rectwidth,-1*rectheight/2)
+    fill(255, 204, 0);
+    textSize(10);
+    text(headlines[i], 0, (i-1)*lineheight); // orange
+    if (deFwords.length !=0){
+      for (var j = 0; j<deFwords[i].length; j++){
+        console.log(deFwords[i].length)
 
-  for (var i = 0; i < headlines.length; i++) {
-      var rectwidth = map(headlines[i].length,minHeadLen, maxHeadLen, margin, width-margin*2);
-      // show abstract on mouseover
-      if (mouseX > margin && mouseX < margin+rectwidth && mouseY < margin+i*lineheight && mouseY > margin+i*lineheight+(-1*rectheight)) {
-        fill(255, 204, 0); // orange
-        var word = []
-        for (var j = 0; i<deFwords[i].length; j++){
-
-          textSize(random(3,7)*windowWidth/120);
-          var r = random(120,255);
-          var g = random(120,255);
-          var b = random(0,120);
-          var x = random(margin,margin+rectwidth);
-          var y = random(0,height);
-          fill(r,g,b,125);
-          text(deFwords[i][j],x,y);
-          fill(0,0,0,0)
-          textSize(7);
-          text(headlines[i], 0, (i-1)*lineheight);
-
+        textSize(random(3,7)*windowWidth/120);
+        var r = random(120,255);
+        var g = random(120,255);
+        var b = random(0,120);
+        var x = random(margin,margin+rectwidth);
+        var y = random(0,600);
+        fill(r,g,b,125);
+        text(deFwords[i][j],x,y);
 
         }
+      } 
+    } else {
+        fill("white");
+        textSize(7);
+        text(headlines[i], 0, (i-1)*lineheight);
       }
-    }
 
+
+  }
 }
 
 

@@ -22,13 +22,13 @@ function preload(){
 }
 
 function setup(){
-	createCanvas(600,1000);
-	background(0)
-	textSize(tSize)
-	textAlign(LEFT,TOP)
-	//noLoop();
-	console.log(nytResponse)
-	extractHeadlines();
+  createCanvas(600,1000);
+  background(0)
+  textSize(tSize)
+  textAlign(LEFT,TOP)
+  //noLoop();
+  console.log(nytResponse)
+  extractHeadlines();
   makewords();
 }
 
@@ -40,16 +40,16 @@ function draw() {
   translate(margin, margin);
 
 
-
   for (var i = 0; i < headlines.length; i++) {
 
     var rectwidth = map(headlines[i].length,minHeadLen, maxHeadLen, margin, width-margin*2);
-    if (mouseX > margin && mouseX < margin+rectwidth && mouseY < margin+i*lineheight && mouseY > margin+i*lineheight+(-1*rectheight)) {
+    if (mouseX > margin && mouseX < margin+rectwidth && mouseY < i*lineheight && mouseY > i*lineheight+(-1*rectheight)) {
       fill(255, 204, 0); // orange
+      rect(0, i*lineheight, rectwidth,-1*rectheight)
     } else {
       fill(255);
     }
-    rect(0, i*lineheight, rectwidth,-1*rectheight)
+    
     //console.log(200)
 
     textSize(7);
@@ -71,38 +71,6 @@ function draw() {
       }
     }
 
-
-
-
-
-
-
-    // if (mouseX>width/2){
-
-
-    //   textSize(tSize)
-    //   fill(128,0,0,[128]);
-    //   textAlign(LEFT)
-    //   textStyle(BOLD)
-    //   text(perFacets[i],0,i*lineheight-lineheight/2);
-    //   fill(255);
-    //   textAlign(RIGHT)
-
-    //   text(desFacets[i], 600, i*lineheight);
-
-
-    // } else{
-    //   //console.log("check")
-
-    //   textSize(tSize)
-    //   textAlign(LEFT)
-    //   fill(255);
-
-    //   //text(headlines[i], 0,i*lineheight);
-
-    // }
-
-
 }
 
 
@@ -123,37 +91,7 @@ function makewords(){
 
   }
 
-
-  // console.log(100)
-  // console.log(deFwords)
-  // console.log(200)
 }
-
-  // for (var i = 0; i < tokens.length; i++) {
-  //   var word = tokens[i].toLowerCase();
-
-  //   if (counts[word] === undefined) {
-  //     counts[word] = 1;
-  //     keys.push(word);
-  //   } else{
-  //     counts[word] = counts[word] + 1;
-  //   }
-    
-  //   //console.log(counts);
-  // }
-
-
-  // for (var i = 0; i < keys.length; i++){
-  //   var key = keys[i];
-  //   var count = counts[key];
-  //   textSize(count*window.innerWidth/120);
-  //   var r = random(120,255);
-  //   var g = random(120,255);
-  //   var b = random(0,120);
-  //   var x = random(width);
-  //   var y = random(height);
-  //   text(key,x,y);
-  //   fill(r,g,b,125);
 
 
 
