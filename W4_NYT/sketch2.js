@@ -13,7 +13,7 @@ function preload(){
 
   // input your key and url
   var url = "https://api.nytimes.com/svc/topstories/v2/home.json";
-  var apikey = "c61d1d6e94c6472d8cbf1b113c8c3ed6"; // see: https://developer.nytimes.com
+  var apikey = "qrmg4uSADDCbach1ULvcZSWSTwDBfYbd"; // see: https://developer.nytimes.com
   url += "?api-key=" + apikey;
 
   nytResponse = loadJSON(url);
