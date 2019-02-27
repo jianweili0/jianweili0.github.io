@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		My BMI
+	</title>
+</head>
+<body>
+	<p>My BMI is: </p>
+	<script>
+	const KG_to_KILO=0.45
+	const INCH_to_METER = 0.0254
+	<!-- list -->
+	let clients=[
+		{
+			Name:"Neo",
+			Weight:175,
+			Height:90
+		},
+		{
+			Name:"Serena",
+			Weight:150,
+			Height:60
+		},
+		{
+			Name:"John",
+			Weight:179,
+			Height:80
+		},
+		{
+			Name:"Jane",
+			Weight:159,
+			Height:59
+		}
+	]
+
+
+		function getBMI(client){
+
+			let WeightInKg = client.Weight*KG_to_KILO;
+			let HeightInMt = client.Height*INCH_to_METER;
+			let BMI = WeightInKg/(HeightInMt*HeightInMt)
+			return BMI
+		}
+		
+
+		for (let i=0; i<clients.length; i++){
+			let client = clients[i];
+			let bmi = getBMI(client)
+
+			if (bmi>25){
+				document.write(client.Name + ": " + bmi +"larger than 25"+"</br>")
+			}
+			document.write(client.Name + ": " + bmi +"</br>")
+		}
+		
+	</script>
+
+</body>
+</html>

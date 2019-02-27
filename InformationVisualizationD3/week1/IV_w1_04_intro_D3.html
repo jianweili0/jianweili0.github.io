@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Intro of D3</title>
+</head>
+<body>
+	<h1> D3.js Practice 01</h1>
+	<div id="page-header">
+		<h1>Hello World!</h1>
+		<p class="main-paragraph">This is an example</p>
+		<p> And this is the second paragraph</p>
+		<p> This is the <span>content</span></p>
+	</div>
+
+
+</body>
+<script src = "https://d3js.org/d3.v4.min.js"></script>
+<script>
+	let header = d3.select("#page-header") // need to add # ahead
+	console.log(header.node())
+	let ps = d3.selectAll('p')
+	console.log(ps.nodes()) // need to add ps.nodes() if you have multiple elements
+</script>
+</html>

@@ -3,17 +3,14 @@
     body {
         font-family: Helvetica, Arial, sans-serif
     }
-
     h1 {
         background-color: #2a5599;
         color: #FFFFFF;
         padding: 5px;
     }
-
     svg {
       border: solid 1px #000000;
     }
-
     .mainView {
       display: flex;
     }
@@ -32,10 +29,8 @@
 </body>
 
 <script>
-
 let store = {}
 store.tweets = []
-
 function loadData() {
     let promise = d3.json("nyc-zipcode-tabulation-areas.geojson")
     return promise.then(data => {
@@ -43,36 +38,30 @@ function loadData() {
         return store;
     })
 }
-
 function getMapConfig(){
-  let width = 600;
-  let height = 600;
+  let width = 1000;
+  let height = 1000;
   let container = d3.select('#Map')
   container
       .attr("width", width)
       .attr("height", height)
   return {width, height, container}
 }
-
 function getMapProjection(config) {
   let {width, height} = config;
   let projection = d3.geoMercator()
   projection.scale(50000)
             .center([-73.94, 40.70])
             .translate([width / 2 + 20, height / 2])
-
   store.mapProjection = projection;
   return projection;
 }
-
 function drawMap(geoJson) {
     let config = getMapConfig();
     let projection = getMapProjection(config)
     let container = config.container
-
     let path = d3.geoPath()
         .projection(projection)
-
     container.selectAll("path").data(geoJson.features)
         .enter().append("path")
         .attr("d", d => path(d))
@@ -81,82 +70,63 @@ function drawMap(geoJson) {
         .style("fill-opacity", 0.5)
         .style("stroke-opacity", 0)
 }
-
 function getCoordinates(tweet){
-
   if (tweet.coordinates)
     return tweet.coordinates.coordinates
   else {
     let coordinates = tweet.place.bounding_box.coordinates[0]
-
     let minx = d3.min(coordinates, d => d[0])
     let maxx = d3.max(coordinates, d => d[0])
     let miny = d3.min(coordinates, d => d[1])
     let maxy = d3.max(coordinates, d => d[1])
-
     let x = Math.random() * (maxx - minx) + minx;
     let y = Math.random() * (maxy - miny) + miny;
-
     return [x, y]
   }
 }
-
 function drawTweets() {
     let config = getMapConfig();
     let projection = getMapProjection(config)
     let container = config.container
-
     let cScale = d3.scaleLinear()
         .domain([-1,0,1])
         .range(['red','yellow','green'])
-
     // add circles to svg
     container.selectAll("circle")
-    		.data(store.tweets).enter()
-    		.append("circle")
-    		.attr("cx", d => projection(getCoordinates(d))[0] )
-    		.attr("cy", d => projection(getCoordinates(d))[1] )
+        .data(store.tweets).enter()
+        .append("circle")
+        .attr("cx", d => projection(getCoordinates(d))[0] )
+        .attr("cy", d => projection(getCoordinates(d))[1] )
+        .attr("fill", d => cScale(d.polarity))
+        .attr("r", "2px")
         .transition()
-    		.attr("r", "2px")
-    		.attr("fill", d => cScale(d.polarity))
-        .attr("fill-opacity","0.8")
+        .duration(50)
+        .attr("r", "20px")
+        .transition()
+        .duration(1000)
+        .attr("r", "2px")
 }
-
 function startWebSocket(){
-
   //websocket
   let ws = new WebSocket("ws://nycpulsewall.pmandiola.com:10001")
-
   ws.onopen = function(e) {
-
     console.log('CONNECTION OPEN')
   }
-
   ws.onclose = function(e) {
-
     console.log('CONNECTION CLOSED')
     startWebSocket()
   }
-
   ws.onmessage = function (e) {
-
     tweet = JSON.parse(e.data)
-
     let exact = tweet.coordinates == null ? 'Place ('+tweet.place.full_name+')' : 'Exact'
     console.log(exact + '|' +tweet.polarity + "|" + tweet.text)
     store.tweets.push(tweet);
     drawTweets();
-
   };
 }
-
 function showData() {
-
   drawMap(store.geoJSON)
-
   startWebSocket()
 }
-
 loadData().then(showData);
-
 </script>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Practice: Changing Properties</title>
+</head>
+<body>
+	<h1>D3.js Practice 04: Chaning Properties</h1>
+	<div>
+		<img id = 'sky' src="blackhole.jpg">
+	</div>
+	<div id = 'text' style="font-size:40px">This is Me and Ito</div>
+
+	<div>
+		<button onclick ="change('me.jpg')">Show my pic with Ito
+		</button>
+		<button onclick ="change('blackhole.jpg')">Show blackhole pic
+		</button>
+		<button onclick="changeColor()">Change Color
+		</button>
+		<button onclick="refreshPage()">Refresh Page
+		</button>
+	</div>
+
+
+</body>
+<script src="https://d3js.org/d3.v4.min.js">
+	
+</script>
+<script>
+	function change(imgName){
+		d3.select("#sky").attr("src",imgName)
+	}
+
+	function changeColor(){
+		let color=d3.select("#text").style("color")
+		if (color==="red"){
+			d3.select("#text").style("color","blue")
+
+		}else{
+			d3.select("#text").style("color","red")
+		}
+	}
+	function refreshPage(){
+		window.location.reload()
+	}
+</script>
+</html>

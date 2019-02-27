@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>
+		Adding or Removing Items
+	</title>
+</head>
+
+<body>
+	<h1> D3.js Practice 03</h1>
+	<ul id= "itemlist">
+		<li>Item 1</li>
+		<li>Item 2</li>
+	</ul>
+	<button onclick="change1()">Add new Item</button>
+	<button onclick="change2()">Removing Last Item</button>
+	<button onclick="change3()">Removing All Items</button>
+	<button onclick="change4()">Refresh Page</button>
+</body>
+<script src = "https://d3js.org/d3.v4.min.js"></script>
+<script>
+	// because it is the class, we need . ahead, if it is id we need # ahead
+	let itemlist = d3.select("#itemlist")
+	function count(){
+		// get how many number in the list
+		return itemlist.selectAll("li").size()
+		 
+
+	}
+	function change1(){
+		let c = count() + 1;
+		console.log(c)
+		//change all the paragraph
+		itemlist.append("li").text("Item "+c)
+	}
+	function change2(){
+		itemlist.select("li:last-child").remove() // "li:last-child" instead of "li"
+
+	}
+	function change3(){
+		itemlist.selectAll("li").remove()
+
+	}
+	function change4(){
+		//https://stackoverflow.com/questions/5480945/refreshing-page-on-click-of-a-button
+		window.location.reload()
+
+	}
+</script>
+</html>

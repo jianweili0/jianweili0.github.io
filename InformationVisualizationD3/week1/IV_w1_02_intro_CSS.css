@@ -1,0 +1,22 @@
+
+<!-- seperate file for the CSS -->
+li{
+	color:green;
+}
+
+#window {
+	border:solid 1px black;
+	margin: 10px;
+		padding: 10px;
+
+}
+
+.highlight{
+	background-color: #CCDDEE;
+}
+
+
+button:hover  {
+	background-color: #aaaaaa;
+
+}

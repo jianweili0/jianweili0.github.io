@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		My BMI
+	</title>
+</head>
+<body>
+	<p>My BMI is: </p>
+	<script>
+	const KG_to_KILO=0.45
+	const INCH_to_METER = 0.0254
+
+		let client = {
+			Name : "John",
+			Weight :196,
+			Height : 90
+		}
+
+		function getBMI(client){
+
+			let WeightInKg = client.Weight*KG_to_KILO;
+			let HeightInMt = client.Height*INCH_to_METER;
+			let BMI = WeightInKg/(HeightInMt*HeightInMt)
+			return BMI
+		}
+		
+		document.write(client.Name + ": " + getBMI(client))
+	</script>
+
+</body>
+</html>

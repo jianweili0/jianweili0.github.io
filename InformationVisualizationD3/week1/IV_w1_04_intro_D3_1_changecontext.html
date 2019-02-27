@@ -1,0 +1,41 @@
+<html>
+
+<head></head>
+
+<body>
+	<h1> D3.js Practice 02</h1>
+	<p class="main-paragraph">This is an example</p>
+	<p>And this is the second paragraph </p>
+	<button onclick="change1()">Change First Element</button>
+	<button onclick="change2()">Change all paragraph</button>
+	<button onclick="change3()">Change with HTML</button>
+	<button onclick="change4()">Change with text</button>
+	<button onclick="change5()">Trying to refresh page</button>
+</body>
+<script src = "https://d3js.org/d3.v4.min.js"></script>
+<script>
+	function change1(){
+		let p = d3.select(".main-paragraph").text("New Text") // because it is the class, we need . ahead, if it is id we need # ahead
+		
+	}
+	function change2(){
+		//change all the paragraph
+		d3.selectAll('p').text("New Text2")
+	}
+	function change3(){
+		//insert html inside of the button
+		d3.select('p').html("<b>test for html inside of the button</b> normal")
+	}
+	function change4(){
+		// using pure text instead of HTML
+		d3.select('p').text("<b>test for html inside of the button</b> normal")
+	}
+	function change5(){
+		//https://stackoverflow.com/questions/5480945/refreshing-page-on-click-of-a-button
+		window.location.reload()
+
+	}
+</script>
+</html>
+
+

@@ -1,0 +1,30 @@
+
+<html>
+<head>
+	<title>Load Data</title>
+</head>
+<body>
+	<h1>Load Data in D3</h1>
+	<div id="container"></div>
+
+
+</body>
+
+<script src="d3.js"></script>
+<script>
+	let container = d3.select("#container")
+
+	d3.csv("https://raw.githubusercontent.com/jianweili0/PUI2018_jl9200/master/HW9_jl9200/firekilldata.csv").then(function (data){
+		console.log(1)
+		for (let client of data){
+			write(client.Source)
+	 	}
+	 })
+	 //write ("Line after")
+	function write(text) {
+		container.append("div").text(text)
+	}
+
+</script>
+
+</html>
