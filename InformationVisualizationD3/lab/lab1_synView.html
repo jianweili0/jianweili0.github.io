@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Syn Views</title>
+</head>
+<body>
+	<h1> Syn Views</h1>
+	<div id='i1' type = 'number' onkeyup="i1change()" /></div>
+	<div id='i2' type = 'number' onkeyup="i2change()" /></div>
+	<button id = 'Increase'>Increase</button>
+
+</body>
+<script src = 'd3.js'></script>
+<script>
+	let store = {}
+
+	//  d3 only support only one 
+	let storeDispatcher = d3.dispatch("update")
+
+	function Input(id){
+		const elm = d3.select(`#{id}`);
+		elm.on('keyup',function(){
+			setValue(this.value);
+		})
+
+		storeDispatcher.on(`update.${id}`,()=>{
+			elm.node().value
+		})
+	}
+
+	function i1change(){
+
+		const value = d3.select("#i1").node().value;
+		setValue(value)
+	}
+	function i2change(){
+
+		const value = d3.select("#i2").node().value;
+		setValue(value-2)
+	}
+
+	function setValue(value){
+		store.value = value;
+		storeDispatcher.call("update")
+		refresh()
+	}
+
+	function increase(){
+		setValue(store.value + 1)
+	}
+
+	function refresh(){
+		d3.select("#2").node().value = +store.value+2
+
+	}
+	Inpput('i1')
+
+</script>
+</html>

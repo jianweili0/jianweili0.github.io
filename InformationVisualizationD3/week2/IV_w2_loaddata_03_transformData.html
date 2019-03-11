@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Filter or Sort the data</title>
+</head>
+<body>
+	<h1>Filter or Sort the data</h1>
+	<div id='container'></div>
+
+
+
+</body>
+<script src="d3.js"></script>
+<script>
+	const KG_PER_POUND = 0.45
+	const METER_PER_INCH = 0.0254
+	let container = d3.select("#container") //id using # ahead
+	 // using the name in the same foler
+	d3.csv("data.csv").then(dataLoaded)
+
+	// map and reduce
+	function dataLoaded(clients){
+		// because the map will not change the original, I need to name it over
+		clients = clients.map(d=>{
+			d.BMI = getBMI(d)
+			return d
+		})
+		showData(clients)
+	}
+
+	function getBMI(client){
+
+		let WeightInKg = client.Weight*KG_PER_POUND ;
+		let HeightInMt = client.Height*METER_PER_INCH;
+		let BMI = WeightInKg/(HeightInMt*HeightInMt)
+		return BMI
+	}
+
+
+	function showData(clients){
+		for (let client of clients){
+			write(client.Name
+				+" , "
+				+ client.Weight
+				+" , "
+				+ client.BMI.toFixed(2)) // .toFixed(2) round of 2 digits
+		}
+		write("--------------------------------------")
+		let sum = clients.reduce(
+			(prev, curr) => {
+				return prev + curr.BMI
+			},0)
+		let mean = sum/clients.length
+		write("Mean of clients' BMI: " + mean.toFixed(2))
+	}
+
+
+
+	console.log(202)
+	function write(text){
+		container.append("div").text(text)
+	}
+
+</script>
+
+
+</html>
+

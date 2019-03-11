@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Filter or Sort the data</title>
+</head>
+<body>
+	<h1>Filter or Sort the data</h1>
+	<div id='container'></div>
+
+
+
+</body>
+<script src="d3.js"></script>
+<script>
+	let container = d3.select("#container") //id using # ahead
+	 // using the name in the same foler
+	d3.csv("data.csv").then(function(data){
+		// sort will change the original data
+		data.sort((a,b)=>{
+			return d3.ascending(a.Name,b.Name)
+		})
+
+		// 1.filter will not change the original data
+		data = data.filter(d=> {
+			return d.Weight <200
+		})
+
+		// 2. make a filter citeria to  will not change the original data
+		let filtereddata = data.filter(d=> {
+			return d.Weight <200
+		})
+		showData(filtereddata)
+		
+	})
+
+	function showData(clients){
+		for (let client of clients){
+			write(client.Name
+				+" , "
+				+ client.Weight)
+		}
+	}
+
+
+	console.log(202)
+	function write(text){
+		container.append("div").text(text)
+	}
+
+</script>
+
+
+</html>

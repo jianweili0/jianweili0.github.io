@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Load Data</title>
+</head>
+<body>
+	<h1>Load Data in D3</h1>
+	<div id='container'></div>
+
+
+
+</body>
+<script src="d3.js"></script>
+<script>
+	let container = d3.select("#container") //id using # ahead
+	 // using the name in the same foler
+	 d3.csv("data.csv").then(function (data){
+	 	write("data is available")
+
+	 	for (let client of data){
+	 		write(client.Name)
+	 	}
+	 	console.log(11)
+	 })
+
+	 console.log(12)
+	function write(text){
+		container.append("div").text(text)
+	}
+
+</script>
+
+
+</html>

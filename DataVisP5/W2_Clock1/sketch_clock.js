@@ -8,7 +8,7 @@ function setup() {
 
 
 function draw() {
-	background('red');
+	background('pink');
 
 	var x = 600
 	var y = 600
