@@ -18,6 +18,7 @@
 
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://unpkg.com/d3-tile@0.0.4/build/d3-tile.min.js"></script>
+<script src="./linechart.js"></script>
 
 <body>
 <h1>NYC Live Tweets</h1>
@@ -108,7 +109,11 @@ function drawTweets() {
 }
 function startWebSocket(){
   //websocket
-  let ws = new WebSocket("ws://35.207.6.191:10001")
+  // use  ws://35.207.6.191:10001 with googlecloud at local
+
+  // https://jianweili0.github.io/nycpulseproject/index.html
+
+  let ws = new WebSocket("ws://nycpulseproject.jianweili.ml:10001")
   ws.onopen = function(e) {
     console.log('CONNECTION OPEN')
   }
