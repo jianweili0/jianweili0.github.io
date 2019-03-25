@@ -109,11 +109,11 @@ function drawTweets() {
 }
 function startWebSocket(){
   //websocket
-  // use  ws://35.207.6.191:10001 with googlecloud at local
+  // use  ws://35.207.6.191:10001 with googlecloud at local it works
 
   // https://jianweili0.github.io/nycpulseproject/index.html
 
-  let ws = new WebSocket("ws://nycpulseproject.jianweili.ml:10001")
+  let ws = new WebSocket("ws://35.207.6.191:10001")
   ws.onopen = function(e) {
     console.log('CONNECTION OPEN')
   }
