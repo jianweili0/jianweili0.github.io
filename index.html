@@ -1,15 +1,142 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Jianwei Li Data Visualization Website</title>
-    <script src="p5.min.js"></script>
-    <script src="p5.dom.min.js"></script>
-    <script src="sketch_layout.js"></script>
-  </head>
-  <body>
-    <h1>Hello, DataVizer!</h1><br>
-    <a href="DataVisP5/index.html"> Data Visualization in P5.js</a><br><br>
-    <a href="InformationVisualizationD3/index.html"> Information Visualization in D3.js</a><br><br>
-    <a href="nycpulseproject/index.html"> NYC Pulse Wall Project</a><br><br>
-    <a href="VR/WaterShared/index.html">Virtual Reality Project: WaterShared Downtown Amman in NYC [Testing]</a><br><br>
-  </body>
+<head>
+	<!-- Page Info 
+	=========================================== -->
+	<meta charset='utf-8'>
+	<title>JIANWEI LI</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="description" content="Jianwei Li 's website about architecture data science and urban design" />
+	<meta name="author" content="Jianwei Li" />
+	<meta name="keywords" content="jianwei li, jianweili, Jianwei Li, architecture, design, data science, data visualization, virtual reality, urban, urban design" />
+
+
+	<!-- Mobile Specific Metas 
+	=========================================== -->
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta id="viewport" name="viewport">
+
+	<!-- CSS Files to be added -->
+	<link rel="stylesheet" type = "text/css" href="/css/style.css">
+	<link rel="stylesheet" type = "text/css" href="/css/grid.css">
+
+	<!-- icon
+	=========================================== -->
+
+	<link rel="shortcut icon" href="images/pageicon.png">
+
+
+	<link rel="stylesheet" type="text/css" href="css/cssreset-min.css">
+	<link rel="stylesheet" type="text/css" href="css/typegrid.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<!-- <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,300' rel='stylesheet' type='text/css'> -->
+	<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css">
+
+	
+
+</head>
+<body>
+	<!-- Header
+	===========================================
+	-->
+	<section id="header">
+		<div class="topbar">
+			<div class="container">
+					
+				<!--
+					A custom jQuery plugin called typeMenu handles the menu
+					Add .hide-on-mobile to <li> elements to hide a specific item on mobile viewports
+				-->
+				<ul id="nav" class="full">
+					<li>
+						<a href="about.html"><span class="count hide-on-mobile"></span>About</a>
+						<ul></ul>
+					</li>
+					<li>
+						<a href="works.html">
+							<span class="count hide-on-mobile"></span>Works
+						</a>
+						<ul>		
+							<li><a href="DataVisP5/index.html"> Data Visualization in P5.js</a></li>
+							<li><a href="InformationVisualizationD3/index.html"> Information Visualization in D3.js</a></li>
+							<li><a href="nycpulseproject/index.html"> NYC Pulse Wall Project</a></li>
+							<li>Data Science Projects</li>
+							<li>Architecture/Urbanism</li>
+							<li>VR Development</li>
+
+						</ul>
+					</li>
+
+					<li>
+						<a href="contact.html"><span class="count hide-on-mobile"></span>Contact</a>
+						<ul></ul>
+					</li>
+					
+				</ul><!-- // #nav -->
+
+			</div><!-- // .container -->
+		</div><!-- // .topbar -->
+
+		<div id="container">
+			<div class="geometry">
+
+				<script src="js/object.js"></script>
+				<script type="js/rotating-object.js"></script>
+			</div>
+
+			<a href="index.html">
+			<div class="title-home">
+			</div></a>
+			<div class="clear"></div>
+
+			<div class="title-home-desc">
+				<p>
+					Jianwei Li is urban data scientist, <br>
+					focusing on the interdisciplinary fields between architecture, urban design and data science.<br>
+				</p>
+			</div>
+		</div><!-- // .logo-wrap -->
+	</section>
+	<div align="center" class="socialbtns">
+		<ul>
+			<li><a href="https://www.linkedin.com/in/jianweili0" class="fa fa-lg fa-linkedin"></a></li>
+			<li><a href="https://github.com/jianweili0" class="fa fa-lg fa-github"></a></li>
+		</ul>
+	</div>
+
+	<!-- Works
+	================================================== -->
+	<section id="works">
+		<div class="container">
+			<div class="desktop-12 columns"><div class="border-top"></div></div>		
+			
+		</div><!-- // .container -->
+	</section><!-- // section#works -->
+
+	<!-- Footer
+	================================================== -->
+	<section id="footer">
+		<div class="container">
+			<div class="desktop-3 columns">
+				<p>Copyright &copy; <a href="lijianweidesign.com">Jianwei Li</a></p>
+			</div><!-- // .desktop-3 -->
+			<div class="clear"></div>
+		</div><!-- // .container -->
+	</section><!-- // section#footer -->
+
+	<!-- JS
+	================================================== -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="js/jQuery.BlackAndWhite.min.js"></script>
+	<script src="js/modernizr.js"></script>
+	<script src="js/less-1.4.0.min.js"></script>
+	<script src="js/jquery.typeMenu.js"></script>
+	<script src="js/jquery.typeSticky.js"></script>
+	<script src="js/jquery.custom.js"></script>
+
+<!-- End Document
+================================================== -->
+</body>
 </html>
