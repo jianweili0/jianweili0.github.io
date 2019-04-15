@@ -1,0 +1,48 @@
+
+body {
+  /* This sets the background using a hex color */
+  background: #41CE0E;
+  font-family: sans-serif;
+}
+
+h1 {
+  /* This sets the background using an html named color */
+  background: orange;
+}
+
+.pizza-shop, .subway-station {
+  padding: 15px;
+  margin: 5px;
+}
+
+.pizza-shop {
+  background: #B744CE;
+  cursor: pointer;
+}
+
+.pizza-shop:hover {
+  background: red;
+}
+
+.subway-station {
+  background: #CE149C;
+}
+
+#alertButton {
+  padding: 20px;
+  border-radius: 15px;
+  font-weight: 800;
+  -webkit-box-shadow: 6px 6px 8px 7px rgba(0, 0, 0, 0.71);
+  box-shadow: 6px 6px 8px 7px rgba(0, 0, 0, 0.71);
+}
+
+.my-photo {
+  width: 100px;
+  border-radius: 10px;
+}
+
+#pizza-shop-info {
+  border: 3px solid;
+  min-height: 100px;
+  padding: 20px;
+}
