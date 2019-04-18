@@ -40,7 +40,8 @@
 <script src="js/crossfilter.min.js"></script>
 <script src="js/linechart.js"></script>
 <script src="js/barchart.js"></script>
-<script src='js/barchart_topic2.js'></script>
+
+<script src='js/topicchart2.js'></script>
 <!-- will add topic barchart.js -->
 
 <body>
@@ -159,17 +160,22 @@
 
       let coords_source = newTweet.coords_source +' ('+newTweet.borough+')'
       ///console.log(coords_source + '|' +newTweet.polarity + "|" + newTweet.text)
-      ///testing for hashtag
+
 
       store.tweets.add([newTweet])
+      ///console.log(newTweet.hashtags) ///check hashtags
 
-      //console.log(newTweet.hashtags)
     };
   }
 
   (async function App() { 
     let formatDate = d3.timeFormat("%Y-%m-%d");
     let data = await d3.csv("http://nycpulsewall.pmandiola.com:90/tweets-filtered_" + formatDate(new Date()) + ".csv");
+    /// parse text into list 
+    data.forEach( d=>{
+      d.hashtags = JSON.parse(d.hashtags.replace(/'/g, '"'))
+      d.user_mentions = JSON.parse(d.user_mentions.replace(/'/g, '"'))
+    });
     let mapData = await d3.json("nyc-zipcode-tabulation-areas.geojson")
     store.geoJSON = mapData
     store.tweets = crossfilter(data)
@@ -180,37 +186,40 @@
           tweetsByTime = store.tweets.dimension(function(d) {
             var parseTime = d3.timeParse('%a %b %d %H:%M:%S %Z %Y');
             return parseTime(d.created_at);
-          }),
+          })
+          
           tweetsGroupByTime = tweetsByTime.group(function(d) {  
             coeff = 10
             d.setMinutes(Math.round(d.getMinutes()/coeff)*coeff);
             d.setSeconds(0);
             return d;
-          })
+          }),
           /// topicView
-          tweetsByTopic = store.tweets.dimension(function(d){
-            return d.hashtags
-            console.log(d.hashtags)
-          })
+          tweetsHashtags = store.tweets.dimension(function(d){
+            return d.hashtags 
+          },true)
+          ///console.log(tweetsHashtags) /// 
 
-          tweetsGroupByTopic = tweetsByTopic.group(function(d){
-            return d= Math.floor(d)
-          })
-          ///console.log(tweetsByTopic)
+          tweetsGroupByHashtags = tweetsHashtags.group(),
+          console.log(typeof tweetsGroupByHashtags)
+          //console.log(d3.max(tweetsHashtags, d => d.values))
 
           /// sentimentView
           tweetsByPolarity = store.tweets.dimension(function(d){
             return parseFloat(d.polarity)
-          })
+          }),
+          
 
           tweetsGroupByPolarity = tweetsByPolarity.group(function(d){
             return d==1.0 ? 0.9 : Math.floor(d*10)/10
           })
+
            
+
     const projection = drawMap(store.geoJSON),
           timeline = LineChart("timeline", tweetsByTime, tweetsGroupByTime, 600, 150), 
+          topicView = BarChart2('topicView',tweetsHashtags,tweetsGroupByHashtags,300,600),
           sentimentView = BarChart("sentimentView", tweetsByPolarity, tweetsGroupByPolarity,300,150),
-
           heatMap = simpleheat('HeatMap')
                       .data(allTweets.filter(d => d.coords_source == 'Origin').map(d => projection([d.longitude,d.latitude])))
                       .radius(1,5);
@@ -223,8 +232,9 @@
       heatMap.draw(0.05)
       drawTweets()
       timeline(tweets)
-      TopicChart("topicView",300,600)
+      ///topicView(tweets)
       sentimentView(tweets)
+      
     })
     
     startWebSocket();

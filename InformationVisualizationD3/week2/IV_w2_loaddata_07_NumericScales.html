@@ -25,6 +25,7 @@
     }
 
     function showData(clients) {
+        console.log(clients)
         let max = d3.max(clients, 
             d => d.Weight)
         let scale = d3.scaleLinear()
@@ -33,6 +34,7 @@
 
         let join = container.selectAll("div")
             .data(clients)
+        console.log(container)
 
         join.enter()
             .append("div")

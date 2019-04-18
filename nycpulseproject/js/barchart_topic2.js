@@ -1,6 +1,10 @@
-function TopicChart(targetID,Width = 300, Height = 300) {
 
-  var setup = function(targetID,Width=300,Height=600){
+var TopicChart = function(targetID, dim, grp, Width = 300, Height = 600, onBrush){
+
+  const dimension = dim,
+        group = grp;
+
+  var setup = function(targetID, group, dimension,Width=300,Height=600){
     //Set size of svg element and chart
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
       width = Width - margin.left - margin.right,
@@ -11,7 +15,7 @@ function TopicChart(targetID,Width = 300, Height = 300) {
     //Set up scales
     var x = d3.scale.linear()
       .domain([0,defaultBarWidth])
-      .range([0,width]);
+      .range([0,group]);
     var y = d3.scale.ordinal()
       .rangeRoundBands([0, height], 0.1, 0);
 
@@ -29,20 +33,20 @@ function TopicChart(targetID,Width = 300, Height = 300) {
       svg:svg, x:x, y:y
     }
     return settings;
-  }
+  };
 
-  var redrawChart = function(targetID, newdata) {
+  var redrawChart = function(targetID, group, dimension) {
 
     //Import settings
     var margin=settings.margin, width=settings.width, height=settings.height, categoryIndent=settings.categoryIndent, 
     svg=settings.svg, x=settings.x, y=settings.y;
 
     //Reset domains
-    y.domain(newdata.sort(function(a,b){
+    y.domain(group.sort(function(a,b){
       return b.value - a.value;
     })
       .map(function(d) { return d.key; }));
-    var barmax = d3.max(newdata, function(e) {
+    var barmax = d3.max(group, function(e) {
       return e.value;
     });
     x.domain([0,barmax]);
@@ -55,7 +59,7 @@ function TopicChart(targetID,Width = 300, Height = 300) {
 
     //Create chart row and move to below the bottom of the chart
     var chartRow = svg.selectAll("g.chartRow")
-      .data(newdata, function(d){ return d.key});
+      .data(group, function(d){ return d.key});
     var newRow = chartRow
       .enter()
       .append("g")
@@ -162,10 +166,11 @@ function TopicChart(targetID,Width = 300, Height = 300) {
       callback(settings,newData);
     })
   }
+  
 
   //Sort data in descending order and take the top 10 values
-  var formatData = function(data){
-      return data.sort(function (a, b) {
+  var formatData = function(group){
+      return group.sort(function(a, b) {
           return b.value - a.value;
         })
       .slice(0, 10);

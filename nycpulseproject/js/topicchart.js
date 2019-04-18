@@ -1,4 +1,4 @@
-function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
+function TopicChart(id, dim, grp, width = 300, height = 600, onBrush) {
     
     /**
      *  Data
@@ -16,9 +16,12 @@ function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
     /**
      *  Scales, transformers
      */
-    const xScale = d3.scaleLinear().range([0, innerWidth]),
-          yScale = d3.scaleLinear().range([innerHeight, 0]);
+    const xScale = d3.scaleLinear().range([0, innerWidth])
+                                   .domain([-1, 1]),
+          yScale = d3.scaleLinear().range([innerHeight, 0])
+                                   .domain([0, group.top(10)[0].value])
 
+   ///console.log(group.top(10)[0].key)
     const area = d3
         .area()
         .curve(d3.curveMonotoneX)
@@ -29,7 +32,7 @@ function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
         .y1(function(d) {
             return yScale(d.value);
         });
-    const xAxis = d3.axisBottom(xScale).ticks(10);
+    const xAxis = d3.axisBottom(xScale).ticks(7);
     const yAxis = d3.axisLeft(yScale).ticks(5);
 
     /**
@@ -44,18 +47,31 @@ function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
         .append("g")
         .attr("class", "focus")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    /// not path 
-    ///const path = body.append("path");
+    const bars = body.selectAll("rect")
+        .data(group.all())
+    bars.enter().append("rect")
+        .attr("height", d => innerHeight - yScale(d.value))
+        .attr("y", d => yScale(d.value))
+        .attr("x", (d) => xScale(d.key))
+        .attr("width", innerWidth/group.size())
 
-    const rect = body.append(rect)
+    /// try to add text
+
+/*    bars.append('text')
+        .attr('dy','.75em')
+        .attr('y', -12)
+        .attr("x", (d) => xScale(d.key))
+        .attr('text-anchor','middle')
+        .text(function(d){return formatCount(d.y);});*/
+
     const xAxisView = body
         .append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + innerHeight + ")");
 
     const yAxisView = body.append("g").attr("class", "axis axis--y");
-
-
+    xAxisView.call(xAxis);
+    yAxisView.call(yAxis);
     let brush = undefined;
     let brushG = undefined;
     if (onBrush) {
@@ -84,14 +100,10 @@ function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
 
     function update(data, selection) {
         if (prevInfo !== data) {
-            xScale.domain([group.all()[0].key, group.all()[group.size()-1].key])
-            yScale.domain([0, group.value]);
+            yScale.domain([0, group.top(1)[0].value]);
 
-            rect.datum(group.all())
-                .attr("class", "area")
-                .attr("d", area);
+            bars.data(group.all());
 
-            xAxisView.call(xAxis);
             yAxisView.call(yAxis);
             prevInfo = data;
 
