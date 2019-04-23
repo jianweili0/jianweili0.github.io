@@ -1,9 +1,7 @@
 function TopicChart(id, dim, grp, width = 300, height = 600, onBrush) {
-    
+
     const dimension = dim,
           group = grp;
-
-
 
     const margin = {top: 60, right: 10, bottom: 50, left: 10},
           bodyHeight = height -margin.top - margin.bottom,

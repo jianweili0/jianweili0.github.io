@@ -42,6 +42,7 @@
 <script src="js/barchart.js"></script>
 
 <script src='js/topicchart.js'></script>
+<script src='js/userchart.js'></script>
 <!-- will add topic barchart.js -->
 
 <body>
@@ -56,9 +57,18 @@
     <div><svg id="timeline"></svg></div>
   </div>
   <div>
-    <svg id='topicView' width='300' height='600'></svg><div>
-  <div><svg id="sentiment"></svg></div>
-
+    <div>
+      <svg id='topicView' width='300' height='600'></svg>
+    </div>
+    <div>
+      <svg id="sentiment"></svg>
+    </div>
+  </div>
+  <div>
+    <div>
+      <svg id='userView' width='300' height='600'></svg>
+    </div>
+  </div>
 </div>
 </body>
 
@@ -214,6 +224,7 @@
             tweetsByPolarity.filter(d);
           }),
           topicView = TopicChart('topicView',tweetsByHashtag,tweetsGroupByHashtag,300,600),
+          userView = UserChart('userView',tweetsByUserMentions,tweetsGroupByUserMentions,300,600),
           heatMap = simpleheat('HeatMap')
                       .data(allTweets.filter(d => d.coords_source == 'Origin').map(d => projection([d.longitude,d.latitude])))
                       .radius(1,5)
@@ -239,7 +250,9 @@
       timeline(tweets)
       topicView(tweets)
       sentiment(tweets)
-      
+      userView(tweets)
+
+
     })
     
     startWebSocket();

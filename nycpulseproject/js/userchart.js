@@ -1,15 +1,14 @@
 function UserChart(id, dim, grp, width = 300, height = 600, onBrush) {
+    
     const dimension = dim,
           group = grp;
-
-
 
     const margin = {top: 60, right: 10, bottom: 50, left: 10},
           bodyHeight = height -margin.top - margin.bottom,
           bodyWidth = width - margin.left - margin.right,
           categoryIndent = 10
 
-    const container = d3.select('#topicView')
+    const container = d3.select('#userView')
             .attr("width", width)
             .attr("height", height)
 
@@ -45,6 +44,10 @@ function UserChart(id, dim, grp, width = 300, height = 600, onBrush) {
             .on('click',function(d){
                 dimension.filter(d.key)
             })
+            .on('dblclick',function(d){
+                dimension.filterAll()
+            })
+
     
     const texts = bars_container.enter().append('text')
         .text(d=>d.key)
@@ -86,7 +89,9 @@ function UserChart(id, dim, grp, width = 300, height = 600, onBrush) {
                 if (d3.event.selection){
                     var s = d3.event.selection.map(xScale.invert, xScale);
                     onBrush(s);                   
-                }else onBrush(null)
+                }else{
+                    dimension.filterAll();
+                }
             });
         brushG = body
             .append("g")
@@ -113,7 +118,7 @@ function UserChart(id, dim, grp, width = 300, height = 600, onBrush) {
                 .attr('y',(d)=>yScale(d.key))
 
             xAxisView.call(xAxis);
-            yAxisView.call(yAxis);
+            //yAxisView.call(yAxis);
             prevInfo = data;
 
             if (brushG && selection) {
