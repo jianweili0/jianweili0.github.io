@@ -2,13 +2,14 @@ function TopicChart(id, dim, grp, width = 300, height = 600, onBrush) {
 
     const dimension = dim,
           group = grp;
+          id =document.getElementById(id)
 
     const margin = {top: 60, right: 10, bottom: 50, left: 10},
           bodyHeight = height -margin.top - margin.bottom,
           bodyWidth = width - margin.left - margin.right,
           categoryIndent = 10
 
-    const container = d3.select('#topicView')
+    const container = d3.select(id)
             .attr("width", width)
             .attr("height", height)
 
@@ -27,6 +28,15 @@ function TopicChart(id, dim, grp, width = 300, height = 600, onBrush) {
           bars_container = body.selectAll("rect")
             .data(group.top(10))
 
+    // change color onclick
+    var toggleColor = (function(){
+       var currentColor = "#dce1e5";
+        
+        return function(){
+            currentColor = currentColor == "#dce1e5" ? "#3182bd" : "#dce1e5";
+            d3.select(this).style("fill", currentColor);
+        }
+    })();
         
     const bars = bars_container.enter().append('rect')
             .attr('height', yScale.bandwidth())
@@ -43,9 +53,16 @@ function TopicChart(id, dim, grp, width = 300, height = 600, onBrush) {
             })
             .on('click',function(d){
                 dimension.filter(d.key)
+                d3.select(this)
+                  .attr('fill',toggleColor)
             })
+
             .on('dblclick',function(d){
                 dimension.filterAll()
+                d3.selectAll()
+                  .attr('fill','#dce1e5')
+                d3.select(this)
+                  .attr('fill',toggleColor)
             })
 
     

@@ -1,0 +1,260 @@
+<html>
+<!-- collaborate with Pablo -->
+<style>
+    body {
+        font-family: Helvetica, Arial, sans-serif
+    }
+    h1 {
+        background-color: #B9D9EB;
+        color: #FFFFFF;
+        padding: 5px;
+    }
+    svg,canvas {
+      border: solid 1px #000000;
+    }
+    .mainView {
+      display: flex;
+    }
+    .area {
+      fill:steelblue;
+      clip-path: url(#clip);
+    }
+    .bar rect {
+      shape-rendering: crispEdges;
+    }
+
+    .bar text {
+      fill: #999999;
+    }
+
+
+</style>
+
+<!-- version d3.v3 -->
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://d3js.org/d3-time.v1.min.js"></script>
+<script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+<script src="https://unpkg.com/d3-tile@0.0.4/build/d3-tile.min.js"></script>
+<script src="js/simpleheat.js"></script>
+<script src="js/crossfilter.min.js"></script>
+<script src="js/linechart.js"></script>
+<script src="js/barchart.js"></script>
+
+<!-- add mapbox.gl-->
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js'></script>
+<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css" rel="stylesheet" />
+
+<script src='js/topicchart.js'></script>
+<script src='js/userchart.js'></script>
+<!-- will add topic barchart.js -->
+
+<body>
+<h1>NYC Live Tweets</h1>
+<div class="mainView">
+  <div>
+    <div style="position: relative;">
+        <svg id="Map"></svg>
+        <canvas id="HeatMap" width="600" height="600" style="position: absolute; top: 0px;"></canvas>
+        <svg id="Points" width="600" height="600" style="position: absolute; top: 0px;"></svg>
+    </div>
+    <div><svg id="timeline"></svg></div>
+  </div>
+  <div>
+    <div><svg id='topicView' width='300' height='600'></svg></div>
+    <div><svg id="sentiment"></svg></div>
+  </div>
+  <div>
+    <div><svg id='userView' width='300' height='600'></svg></div>
+  </div>
+</div>
+</body>
+
+<script>
+
+  let store = {}
+  function getMapConfig(){
+    let width = 600;
+    let height = 600;
+    let container = d3.select('#Map')
+    container
+        .attr("width", width)
+        .attr("height", height)
+    return {width, height, container}
+  }
+  function getMapProjection(config) {
+    let {width, height} = config;
+    let projection = d3.geoMercator()
+    projection.scale(57000)
+              .center([-73.959, 40.705])
+              .translate([width / 2 + 20, height / 2])
+    store.mapProjection = projection;
+    return projection;
+  }
+
+  function drawMap(geoJson) {
+      let config = getMapConfig();
+      let projection = getMapProjection(config)
+      let container = config.container
+      let path = d3.geoPath()
+          .projection(projection)
+      container.selectAll("path").data(geoJson.features)
+          .enter().append("path")
+          .attr("d", d => path(d))
+          .attr("fill", "grey")
+          .attr("stroke", "black")
+          .style("fill-opacity", 0.5)
+          .style("stroke-opacity", 0)
+      return projection;
+  }
+
+
+  function drawTweet(tweet) {
+      let config = getMapConfig();
+      let projection = getMapProjection(config)
+      let container = d3.select('#Points')
+      let cScale = d3.scaleLinear()
+          .domain([-1,0,1])
+          .range(['red','yellow','green'])
+      // add circles to svg
+      container.append("circle")
+          .datum(tweet)
+          .attr("cx", d => projection([d.longitude,d.latitude])[0])
+          .attr("cy", d => projection([d.longitude,d.latitude])[1])
+          .attr("fill", d => cScale(d.polarity))
+          .attr("r", "2px")
+          .transition()
+          .duration(50)
+          .attr("r", "20px")
+          .transition()
+          .duration(1000)
+          .attr("r", "0px")
+  }
+
+  function startWebSocket(){
+
+    //websocket localhost  (ws://localhost:10001")
+    // host ("ws://35.207.6.191:10001") 
+    // host (ws://nycpulsewall.pmandiola.com:10001)
+    // host ("ws://twts.pmandiola.com:10001")
+    let ws = new WebSocket("ws://twts.pmandiola.com:10001")
+
+    ws.onopen = function(e) {
+
+      console.log('CONNECTION OPEN')
+    }
+
+    ws.onclose = function(e) {
+
+      console.log('CONNECTION CLOSED')
+      startWebSocket()
+    }
+
+
+    ws.onmessage = function (e) {
+
+      let newTweet = JSON.parse(e.data)
+
+      let coords_source = newTweet.coords_source +' ('+newTweet.borough+')'
+      ///console.log(coords_source + '|' +newTweet.polarity + "|" + newTweet.text)
+
+
+      store.tweets.add([newTweet])
+      ///console.log(newTweet.hashtags) ///check hashtags
+
+    };
+  }
+
+  (async function App() { 
+    let formatDate = d3.timeFormat("%Y-%m-%d");
+    //// host "http://nycpulsewall.pmandiola.com:90/tweets-filtered_"
+    let data = await d3.csv("http://twts.pmandiola.com:90/tweets-filtered_" + formatDate(new Date()) + ".csv");
+    /// parse text into list 
+    data.forEach( d=>{
+      d.hashtags = JSON.parse(d.hashtags.replace(/'/g, '"'))
+      d.user_mentions = JSON.parse(d.user_mentions.replace(/'/g, '"'))
+    });
+    let mapData = await d3.json("nyc-zipcode-tabulation-areas.geojson")
+    store.geoJSON = mapData
+    store.tweets = crossfilter(data)
+
+
+    const allTweets = store.tweets.all(),
+          ///timeline
+          tweetsByTime = store.tweets.dimension(function(d) {
+            var parseTime = d3.timeParse('%a %b %d %H:%M:%S %Z %Y');
+            return parseTime(d.created_at);
+          })
+          
+          tweetsGroupByTime = tweetsByTime.group(function(d) {  
+            coeff = 10
+            d.setMinutes(Math.round(d.getMinutes()/coeff)*coeff);
+            d.setSeconds(0);
+            return d;
+          }),
+ 
+
+          /// sentimentView
+          tweetsByPolarity = store.tweets.dimension(d=>parseFloat(d.polarity)),  
+
+          tweetsGroupByPolarity = tweetsByPolarity.group(d=> d==1.0 ? 0.9 : Math.floor(d*10)/10),
+
+          /// add Lat Lon 
+          tweetsByLatitude = store.tweets.dimension(d=>parseFloat(d.latitude)),
+          tweetsByLongitude = store.tweets.dimension(d=>parseFloat(d.longitude)),
+
+         /// topicView
+          tweetsByHashtag = store.tweets.dimension(d=>d.hashtags,true),
+          tweetsGroupByHashtag = tweetsByHashtag.group(),
+
+          /////console.log(d3.max(tweetsHashtags, d => d.values))
+
+          /// userMensionView
+          tweetsByUserMentions = store.tweets.dimension(d=>d.user_mentions,true),
+          tweetsGroupByUserMentions = tweetsByUserMentions.group()
+
+    const projection = drawMap(store.geoJSON),
+          timeline = LineChart("timeline", tweetsByTime, tweetsGroupByTime, 600, 150,d=>{
+            tweetsByTime.filter(d);
+          }), 
+
+          sentiment = BarChart("sentiment", tweetsByPolarity, tweetsGroupByPolarity,300,150,d=>{
+            tweetsByPolarity.filter(d);
+          }),
+          topicView = TopicChart('topicView',tweetsByHashtag,tweetsGroupByHashtag,300,600),
+          userView = UserChart('userView',tweetsByUserMentions,tweetsGroupByUserMentions,300,600),
+          heatMap = simpleheat('HeatMap')
+                      .data(allTweets.filter(d => d.coords_source == 'Origin').map(d => projection([d.longitude,d.latitude])))
+                      .radius(1,5)
+                      .draw()
+    
+    store.tweets.onChange(eventType => {
+
+      const tweets = store.tweets.allFiltered();
+
+      // update heatmap 
+      if (eventType == 'dataAdded'){
+        const newTweet = store.tweets.all().slice(-1)
+        if (newTweet[0].coords_source == 'Origin') heatMap.add(newTweet.map(d => projection([d.longitude,d.latitude])));
+        drawTweet(newTweet[0]);
+      }else if (eventType == 'filtered'){
+        heatMap.data(tweets.filter(d => d.coords_source == 'Origin').map(d => projection([d.longitude,d.latitude])))
+      }
+
+      //static heatmap
+      // heatMap.add(tweets.slice(-1).filter(d => d.coords_source == 'Origin').map(d => projection([d.longitude,d.latitude])))
+
+      heatMap.draw()
+      timeline(tweets)
+      topicView(tweets)
+      sentiment(tweets)
+      userView(tweets)
+
+
+    })
+    
+    startWebSocket();
+  })();
+
+</script>
+</html>

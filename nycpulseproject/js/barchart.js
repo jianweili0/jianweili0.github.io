@@ -23,16 +23,6 @@ function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
           cScale = d3.scaleLinear().range(['red','yellow','green'])
                                    .domain([-1,0,1])
 
-    const area = d3
-        .area()
-        .curve(d3.curveMonotoneX)
-        .x(function(d) {
-            return xScale(d.key);
-        })
-        .y0(innerHeight)
-        .y1(function(d) {
-            return yScale(d.value);
-        });
     const xAxis = d3.axisBottom(xScale).ticks(7);
     const yAxis = d3.axisLeft(yScale).ticks(5);
 
@@ -50,22 +40,12 @@ function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     const bars = body.selectAll("rect")
         .data(group.all())
-    bars.enter().append("rect")
+        .enter().append("rect")
         .attr("height", d => innerHeight - yScale(d.value))
         .attr("y", d => yScale(d.value))
         .attr("x", (d) => xScale(d.key))
         .attr("width", innerWidth/group.size())
         .attr("fill", d => cScale(d.key))
-
-    /// try to add text
-
-/*    bars.append('text')
-        .attr('dy','.75em')
-        .attr('y', -12)
-        .attr("x", (d) => xScale(d.key))
-        .attr('text-anchor','middle')
-        .text(function(d){return formatCount(d.y);});*/
-
     const xAxisView = body
         .append("g")
         .attr("class", "axis axis--x")
@@ -86,10 +66,12 @@ function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
                     d3.event.sourceEvent.type === "zoom"
                 )
                     return; // ignore brush-by-zoom
-                if (d3.event.selection){
+                if (d3.event.selection) {
+
                     var s = d3.event.selection.map(xScale.invert, xScale);
                     onBrush(s);
-                }else onBrush(null)
+                }
+                else onBrush(null)
             });
         brushG = body
             .append("g")
@@ -106,7 +88,9 @@ function BarChart(id, dim, grp, width = 300, height = 300, onBrush) {
         if (prevInfo !== data) {
             yScale.domain([0, group.top(2)[1].value]);
 
-            bars.data(group.all());
+            bars.data(group.all())
+                .attr("height", d => innerHeight - yScale(d.value))
+                .attr("y", d => yScale(d.value));
 
             yAxisView.call(yAxis);
             prevInfo = data;
