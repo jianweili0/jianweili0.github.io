@@ -2,14 +2,13 @@ function TopicChart(id, dim, grp, width = 300, height = 600, onBrush) {
 
     const dimension = dim,
           group = grp;
-          id =document.getElementById(id)
 
     const margin = {top: 60, right: 10, bottom: 50, left: 10},
           bodyHeight = height -margin.top - margin.bottom,
           bodyWidth = width - margin.left - margin.right,
           categoryIndent = 10
 
-    const container = d3.select(id)
+    const container = d3.select(`#${id}`)
             .attr("width", width)
             .attr("height", height)
 
