@@ -1,4 +1,4 @@
-function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
+function BarChart(id, title = 'Title', grp, width = 300, height = 300, onBrush) {
     
     /**
      *  Data
@@ -23,14 +23,14 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
                                    .domain([-1,0,1])
 
     const tickLabels = {
-        '-1':'negative',
-        '0':'neutral',
-        '1':'positive'
+        '-1' : 'negative',
+        '0' : 'neutral',
+        '1' : 'positive'
     }
 
     const xAxis = d3.axisBottom(xScale)
                     .ticks(2)
-                    .tickFormat(d => tickLabels[String(d)]);
+                    .tickFormat(d=> tickLabels[String(d)]);
     const yAxis = d3.axisLeft(yScale).ticks(5);
 
     /**
@@ -45,6 +45,7 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
         .append("g")
         .attr("class", "focus")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
     const bars = body.selectAll("rect")
         .data(group.all())
         .enter().append("rect")
@@ -53,6 +54,7 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
         .attr("x", (d) => xScale(d.key))
         .attr("width", innerWidth/group.size())
         .attr("fill", d => cScale(d.key))
+
     const xAxisView = body
         .append("g")
         .attr("class", "axis axis--x")
@@ -63,14 +65,14 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
     yAxisView.call(yAxis);
 
     svg.append("text")
-    .attr("x", margin.left + 10)             
-    .attr("y", margin.top)
-    .attr("text-anchor", "start")
-    .attr('alignment-baseline', 'baseline')
-    .style("font-size", "12px") 
-    .style("font-weight", "bold")  
-    .text(title);
-    
+       .attr('x', margin.left + 10)
+       .attr('y', margin.top)
+       .attr('text-anchor','start')
+       .attr('alignment-baseline', 'baseline')
+       .style('font-size', '12px')
+       .style('font-weight', 'bold')
+       .text(title);
+
     let brush = undefined;
     let brushG = undefined;
     if (onBrush) {
@@ -78,10 +80,10 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
             .brushX()
             .extent([[0, 0], [innerWidth, innerHeight]])
             .on("brush end", b => {
-                if (!d3.event.sourceEvent) return;
+                if (!d3.event.sourceEvent)return;
 
-                if (
-                    d3.event.sourceEvent &&
+                if(
+                    d3.event.sourceEvent && 
                     d3.event.sourceEvent.type === "zoom"
                 )
                     return; // ignore brush-by-zoom

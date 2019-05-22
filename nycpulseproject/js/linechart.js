@@ -1,10 +1,9 @@
-function LineChart(id, dim, grp, width = 300, height = 300, onBrush) {
+function LineChart(id, title="Title", grp, width = 300, height = 300, onBrush, scale) {
     
     /**
      *  Data
      */
-    const dimension = dim,
-          group = grp;
+    const group = grp;
 
     /**
      *  Config
@@ -16,7 +15,7 @@ function LineChart(id, dim, grp, width = 300, height = 300, onBrush) {
     /**
      *  Scales, transformers
      */
-    const xScale = d3.scaleTime().range([0, innerWidth])
+    const xScale = scale.range([0, innerWidth])
                                  .domain([group.all()[0].key, group.all()[group.size()-1].key]),
           yScale = d3.scaleLinear().range([innerHeight, 0])
                                    .domain([0, group.top(1)[0].value]);
@@ -31,7 +30,7 @@ function LineChart(id, dim, grp, width = 300, height = 300, onBrush) {
         .y1(function(d) {
             return yScale(d.value);
         });
-    const xAxis = d3.axisBottom(xScale).ticks(7);
+    const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale).ticks(5);
 
     /**
@@ -62,6 +61,15 @@ function LineChart(id, dim, grp, width = 300, height = 300, onBrush) {
     xAxisView.call(xAxis);
     yAxisView.call(yAxis);
 
+    svg.append("text")
+        .attr("x", margin.left + 10)             
+        .attr("y", margin.top)
+        .attr("text-anchor", "start")
+        .attr('alignment-baseline', 'baseline')
+        .style("font-size", "12px") 
+        .style("font-weight", "bold")  
+        .text(title);
+
     let brush = undefined;
     let brushG = undefined;
     if (onBrush) {
@@ -69,6 +77,8 @@ function LineChart(id, dim, grp, width = 300, height = 300, onBrush) {
             .brushX()
             .extent([[0, 0], [innerWidth, innerHeight]])
             .on("brush end", b => {
+                if (!d3.event.sourceEvent) return;
+
                 if (
                     d3.event.sourceEvent &&
                     d3.event.sourceEvent.type === "zoom"
@@ -92,10 +102,10 @@ function LineChart(id, dim, grp, width = 300, height = 300, onBrush) {
      */
     let prevInfo = undefined;
 
-    function update(data, selection) {
+    function update(data, clear) {
         if (prevInfo !== data) {
             xScale.domain([group.all()[0].key, group.all()[group.size()-1].key])
-            yScale.domain([0, group.top(1)[0].value]);
+            yScale.domain([0, Math.max(group.top(1)[0].value, 5)]);
 
             path.datum(group.all())
                 .attr("d", area);
@@ -104,8 +114,8 @@ function LineChart(id, dim, grp, width = 300, height = 300, onBrush) {
             yAxisView.call(yAxis);
             prevInfo = data;
 
-            if (brushG && selection) {
-                brushG.call(brush.move, selection.map(xScale, xScale));
+            if (brushG && clear) {
+                brushG.call(brush.move, null);
             }
         }
     }

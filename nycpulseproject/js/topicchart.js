@@ -1,148 +1,134 @@
-function TopicChart(id, dim, grp, width = 300, height = 600, onBrush) {
+function TopicChart(id, title="Title", dim, grp, width = 300, height = 600, n = 10) {
 
     const dimension = dim,
-          group = grp;
+          group = grp,
+          topN = n;
+    
+    let selected = null;
 
-    const margin = {top: 60, right: 10, bottom: 50, left: 10},
-          bodyHeight = height -margin.top - margin.bottom,
-          bodyWidth = width - margin.left - margin.right,
-          categoryIndent = 10
+    const margin = {top: 20, right: 20, bottom: 20, left: 20},
+          bodyHeight = height - margin.top - margin.bottom,
+          bodyWidth = width - margin.left - margin.right
 
-    const container = d3.select(`#${id}`)
+    const svg = d3.select(`#${id}`)
             .attr("width", width)
             .attr("height", height)
+            .on('click', function(){
+                if (!d3.select(d3.event.target).classed('clickable') && selected){
+                    selected = null
+                    dimension.filter(null)
+                    bars_container.selectAll('rect')
+                        .attr('fill','#dce1e5')
+                }
+            })
 
     const xScale = d3.scaleLinear()
             .range([0,bodyWidth])
             .domain([0,group.top(1)[0].value]),
           yScale = d3.scaleBand()
             .range([0, bodyHeight])
-            .domain(group.top(10).map(a=>a.key))
+            .domain(group.top(topN).map(a=>a.key))
             .padding(0.2)
 
-
-    const body = container.append('g')
+    const body = svg.append('g')
             .style("transform",
                 `translate(${margin.left}px,${margin.top}px)`),
-          bars_container = body.selectAll("rect")
-            .data(group.top(10))
 
-    // change color onclick
-    var toggleColor = (function(){
-       var currentColor = "#dce1e5";
-        
-        return function(){
-            currentColor = currentColor == "#dce1e5" ? "#3182bd" : "#dce1e5";
-            d3.select(this).style("fill", currentColor);
-        }
-    })();
-        
-    const bars = bars_container.enter().append('rect')
-            .attr('height', yScale.bandwidth())
-            .attr('y',(d)=>yScale(d.key))
-            .attr('width',d=>xScale(d.value))
-            .attr("fill", "#dce1e5")
+          bars_container = body.selectAll("g")
+            .data(group.top(topN))
+            .enter().append("g")
             .on('mouseenter',function(d){
-                d3.select(this)
+                if (selected != d.key) {
+                    d3.select(this).select('rect')
                     .attr("fill", "#abceea")
+                }
             })
             .on('mouseleave',function(d){
-                d3.select(this)
+                if (selected != d.key) {
+                    d3.select(this).select('rect')
                     .attr("fill", "#dce1e5")
+                }
             })
             .on('click',function(d){
-                dimension.filter(d.key)
-                d3.select(this)
-                  .attr('fill',toggleColor)
+                if (selected != d.key && d.value) {
+                    selected = d.key
+                    dimension.filter(d.key)
+                    bars_container.selectAll('rect')
+                        .attr('fill','#dce1e5')
+                    d3.select(this).select('rect')
+                        .attr('fill',"#3182bd")
+                }
+                else if (d.value) {
+                    selected = null
+                    dimension.filter(null)
+                    d3.select(this).select('rect')
+                        .attr("fill", "#dce1e5")
+                }
             })
-
-            .on('dblclick',function(d){
-                dimension.filterAll()
-                d3.selectAll()
-                  .attr('fill','#dce1e5')
-                d3.select(this)
-                  .attr('fill',toggleColor)
-            })
-
-    
-    const texts = bars_container.enter().append('text')
-        .text(d=>d.key)
+        
+    const bars = bars_container.append('rect')
+        .classed('clickable', true)
+        .attr('height', yScale.bandwidth())
         .attr('y',(d)=>yScale(d.key))
-        .attr('dy','1.25em')
-        .attr('fill','black')
+        .attr('width',d=>xScale(d.value))
+        .attr("fill", "#dce1e5")
+
+    const texts = bars_container.append('text')
+        .classed('clickable', true)
+        .text(d=>d.key)
+        .attr('y',d => yScale(d.key)+yScale.bandwidth()/2)
+        .attr('x', 5)
+        .attr('fill',d => d.value ? 'black': 'white')
+        .attr('alignment-baseline', 'central')
 
     const xAxis = d3.axisBottom(xScale).ticks(5)
-    const yAxis = d3.axisLeft(yScale) // Create axis on the left for the Yscale
 
     const xAxisView = body.append('g')
                     .style("transform",
                         `translate($(${margin.left}px,${height-margin.bottom}px)`)
                     .attr("transform", "translate(0," + bodyHeight + ")");
-    // do not need yAxisView for now
-    // const yAxisView = body
-    //                     .append('g')
-    //                     .style("transform",
-    //                     `translate($(${margin.left}px,${margin.top}px)`)
-
-    //yAxisView.call(yAxis)
     xAxisView.call(xAxis)
 
-
-    let brush = undefined;
-    let brushG = undefined;
-    if (onBrush) {
-        brush = d3
-            .brushX()
-            .extent([[0, 0], [innerWidth, innerHeight]])
-            .on("brush end", b => {
-                if (
-                    d3.event.sourceEvent &&
-                    d3.event.sourceEvent.type === "zoom"
-                )
-                    return; // ignore brush-by-zoom
-
-                //update the onBrush(null) to remove filter effect
-                if (d3.event.selection){
-                    var s = d3.event.selection.map(xScale.invert, xScale);
-                    onBrush(s);                   
-                }else{
-                    dimension.filterAll();
-                }
-            });
-        brushG = body
-            .append("g")
-            .attr("class", "brush")
-            .call(brush);
-    }
+    svg.append("text")
+        .attr("x", margin.left)             
+        .attr("y", margin.top/2)
+        .attr("text-anchor", "start")
+        .attr('alignment-baseline', 'middle')
+        .style("font-size", "12px") 
+        .style("font-weight", "bold")  
+        .text(title);
 
     /**
      *  Update Function
      */
     let prevInfo = undefined;
-    function update(data, selection) {
+    function update(data, clear) {
         if (prevInfo !== data) {
-            xScale.domain([0,group.top(1)[0].value])
-            yScale.domain(group.top(10).map(a=>a.key))
+            if (clear) {
+                selected = null;
+            }
 
-            bars.data(group.top(10))
+            xScale.domain([0,Math.max(group.top(1)[0].value, 5)])
+            yScale.domain(group.top(topN).map(a=>a.key))
+
+            bars_container.data(group.top(topN))
+
+            bars.data(group.top(topN))
                 .attr('height', yScale.bandwidth())
-                .attr('y',(d)=>yScale(d.key))
-                .attr('width',d=>xScale(d.value))
+                .attr('y',d => yScale(d.key))
+                .attr('width',d => xScale(d.value))
+                .attr("fill", d=> selected == d.key ? "#3182bd" : "#dce1e5")
 
-            texts.data(group.top(10))
-                .text(d=>d.key)
-                .attr('y',(d)=>yScale(d.key))
+            texts.data(group.top(topN))
+                .text(d => d.key)
+                .attr('y',(d)=>yScale(d.key)+yScale.bandwidth()/2)
+                .attr('fill',d => d.value ? 'black': 'white')
 
             xAxisView.call(xAxis);
-            //yAxisView.call(yAxis);
             prevInfo = data;
 
-            if (brushG && selection) {
-                brushG.call(brush.move, selection.map(xScale, xScale));
-            }
         }
     }
-    //Repeat every 5 seconds
 
     return update;
 }

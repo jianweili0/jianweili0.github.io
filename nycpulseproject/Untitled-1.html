@@ -1,0 +1,317 @@
+<html>
+<!-- collaborate with Pablo -->
+<style>
+    body {
+        font-family: Helvetica, Arial, sans-serif
+    }
+    h1 {
+        background-color: #B9D9EB;
+        color: #FFFFFF;
+        padding: 5px;
+    }
+    
+/*    svg,canvas {
+      border: solid 1px #000000;
+    }*/
+    canvas {
+      stroke: transparent;
+      stroke-width: 0px;
+    }
+    .mainView {
+      display: flex;
+    }
+    .area {
+      fill:steelblue;
+      clip-path: url(#clip);
+    }
+    .bar rect {
+      shape-rendering: crispEdges;
+    }
+
+    .bar text {
+      fill: #999999;
+    }
+
+
+
+</style>
+
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://d3js.org/d3-time.v1.min.js"></script>
+<script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+<script src="https://unpkg.com/d3-tile@0.0.4/build/d3-tile.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+
+
+
+<!-- add mapbox css -->
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js'></script>
+<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css" rel="stylesheet" />
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.0.0/mapbox-gl-geocoder.min.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.0.0/mapbox-gl-geocoder.css' type='text/css' />
+
+<script src="js/crossfilter.min.js"></script>
+<script src='js/heatmap.js'></script>
+<script src="js/linechart.js"></script>
+<script src="js/barchart.js"></script>
+<script src='js/topicchart.js'></script>
+<script src='js/tweetsinfo.js'></script>
+<script src='js/generalinfo.js'></script>
+<!-- <script src='js/wordcloud.js'></script> -->
+
+<body>
+<h1>NYC Live Tweets</h1>
+<div class="mainView">
+  <div>
+    <div id = "map"></div>
+    <div><svg id = "timeline"></svg></div>
+  </div>
+  <div>
+    <div style = "display: flex;">
+      <div><svg id = "topicView"></svg></div>
+      <div><svg id = "userView"></svg></div>
+      <div><svg id = "wordView"></svg></div>
+    </div>
+  </div>
+  <div>
+    <div style = "display: flex;">
+      <div><svg id = "timeofday"></svg></div>
+      <div><svg id = "sentiment"></svg></div>
+    </div>
+  </div>
+  <div>
+    <div><svg id = "tweetsinfo"></svg></div>
+    <div><svg id = "generalinfo"></svg></div>
+  </div>
+</div>
+</body>
+<script>
+
+  let store = {}
+  let url = "twts.pmandiola.com"
+  // input server url:
+  //websocket localhost  (ws://localhost:10001")
+  // host ("ws://35.207.6.191:10001") 
+  // host (ws://nycpulsewall.pmandiola.com:10001)
+  // host ("ws://twts.pmandiola.com:10001")
+  
+
+  //websocket
+  function startWebSocket(){
+    let ws = new WebSocket(`ws://${url}:10001`)
+
+    ws.onopen = function(e) {
+      console.log('CONNECTION OPEN')
+    }
+
+    ws.onclose = function(e) {
+      console.log('CONNECTION CLOSED')
+      startWebSocket()
+    }
+
+    ws.onmessage = function (e) {
+
+      let newTweet = JSON.parse(e.data)
+
+      var parseTime = d3.timeParse('%a %b %d %H:%M:%S %Z %Y');
+      newTweet.created_at = parseTime(newTweet.created_at)
+
+      let coords_source = newTweet.coords_source +' ('+newTweet.borough+')'
+      console.log(coords_source + '|' +newTweet.polarity + "|" + newTweet.text)
+      ///console.log(newTweet.lemma)
+      store.tweets.add([newTweet])
+      ///console.log(newTweet.hashtags) ///check hashtags
+
+    };
+  }
+
+  (async function App() { 
+    let formatDate = d3.timeFormat("%Y-%m-%d");
+    //// host "http://nycpulsewall.pmandiola.com:90/tweets-filtered_"
+    let files = []
+    let days = 3
+    let clear = false
+    let reseting = false
+    
+    let n_bars = 20
+    let selected = 0
+    // add iterate for each panel
+    let iter_view = ['topView','userView','wordView']
+    let curr_view = 0
+
+    function removeOldTweets(){
+      today = new Date();
+      limit = today.setDate(today.getDate() - days)
+      store.tweets.remove(d => d.created_at < limit)
+    }
+
+    function selectNext(){
+      selected +=1
+      view = iter_view[curr_view]
+
+      if (select > n_bars) {
+        d3.select(`#${view}`).dispatch('click')
+        select = 0
+        curr_view = curr_view == iter_views.length -1 ? 0 : curr_view + 1
+      }
+      else{
+        d3.select(`#${view}`).select('g').select(`g:nth-child(${selected})`).dispatch('click')
+      }
+    }
+
+    for (i = 0; i < days + 1; i++) {
+      var today = new Date();
+      files.push(`http://${url}:90/tweets-filtered_` + formatDate(today.setDate(today.getDate() - i)) + ".csv")
+    }
+
+    const results = await Promise.all(files.map(f=> d3.csv(f).catch(e=> console.log(e.message))));
+    const data = results.filter(result=>result);
+    /// parse text into list 
+
+    twitterData = [].concat(...data)
+    twitterData.forEach( d=>{
+      d.hashtags = JSON.parse(d.hashtags.replace(/'/g, '"'))
+      d.user_mentions = JSON.parse(d.user_mentions.replace(/'/g, '"'))
+      d.lemma = JSON.parse(d.lemma.replace(/'/g, '"'))
+      var parseTime = d3.timeParse('%a %b %d %H:%M:%S %Z %Y')
+      d.created_at = parseTime(d.created_at)
+      d.polarity = parseFloat(d.polarity)
+      d.latitude = parseFloat(d.latitude)
+      d.longitude = parseFloat(d.longitude)
+    })
+
+    store.tweets = crossfilter(twitterData)
+    store.dimension = []
+    
+    //remove old tweets
+    //removeOldTweets()
+
+
+
+
+    const allTweets = store.tweets.all(),
+          ///timeline
+          tweetsByTime = store.tweets.dimension(d=>d.created_at),       
+          tweetsGroupByTime = tweetsByTime.group(function(d) {  
+            //every 10 minutes update
+            coeff = 10 
+            d.setMinutes(Math.round(d.getMinutes()/coeff)*coeff);
+            d.setSeconds(0);
+            return d;
+          }),
+
+          /// HourOfDay
+          tweetsByHour = store.tweets.dimension(d => d.created_at.getHours() + d.created_at.getMinutes() / 60),
+          tweetsGroupByHour = tweetsByHour.group(Math.floor)
+          /// sentimentView
+          tweetsByPolarity = store.tweets.dimension(d=>parseFloat(d.polarity)),  
+          tweetsGroupByPolarity = tweetsByPolarity.group(d=> d==1.0 ? 0.9 : Math.floor(d*10)/10),
+
+         /// topicView
+          tweetsByHashtag = store.tweets.dimension(d=>d.hashtags,true),
+          tweetsGroupByHashtag = tweetsByHashtag.group(),
+
+          /// userMensionView
+          tweetsByUserMentions = store.tweets.dimension(d=>d.user_mentions,true),
+          tweetsGroupByUserMentions = tweetsByUserMentions.group(),
+          /// WordCloud
+          tweetsByWords = store.tweets.dimension(d=> d.lemma,true),
+          tweetsGroupByWords = tweetsByWords.group(),
+
+          tweetsByLongitude = store.tweets.dimension(d => d.longitude),
+          tweetsByLatitude = store.tweets.dimension(d => d.latitude)
+          /// TweetsInfo
+          ///tweetsCount = store.tweets.all()
+          // tweetsByText = store.tweets.dimension(d=>d.text,true),
+          // tweetsByCount = store.tweets.all()
+          
+    store.dimensions.push(tweetsByTime)
+    store.dimensions.push(tweetsByHour)
+    store.dimensions.push(tweetsByPolarity)
+    store.dimensions.push(tweetsByHashtag)
+    store.dimensions.push(tweetsByUserMentions)
+    store.dimensions.push(tweetsByWords)
+    store.dimensions.push(tweetsByLongitude)
+    store.dimensions.push(tweetsByLatitude)
+    
+    const timeline = LineChart("timeline", tweetsGroupByTime, 550, 150,
+                d => {
+                  tweetsByTime.filter(d);
+                }, d3.scaleTime()),
+          timeofday = LineChart("timeofday", "Hour of day", tweetsGroupByHour, 330, 150, 
+                d => {
+                  tweetByHour.filter(d);
+                }, d3.scaleLinear()),
+          sentiment = BarChart("sentiment", "Sentiment polarity", tweetsGroupByPolarity,330,150,
+                d=>{
+                  tweetsByPolarity.filter(d);
+                }),
+          topicView = TopicChart('topicView',"Hashtags", tweetsByHashtag,tweetsGroupByHashtag,220,650, n_bars),
+          userView = TopicChart('userView', "User mentions", tweetsByUserMentions,tweetsGroupByUserMentions,220,650, n_bars),
+          wordView = TopChart('wordView', "Word", tweetsByWords, tweetsGroupByWords, 220, 650, n_bars)
+          heatmap = HeatMap('map',allTweets.filter(d=> d.coords_source =='Origin')),
+          tweetsinfo = TweetsInfo('tweetsinfo', "Last 10 tweets", allTweets,400, 650),
+          generalinfo = GeneralInfo('generalinfo', 'Tweets Information', store.tweets, 400, 150)
+
+    
+    store.tweets.onChange(eventType => {
+      
+      if (reseting) return;
+
+      const tweets = store.tweets.allFiltered();
+
+      // update heatmap 
+      if (eventType == 'dataAdded' && store.tweets.isElementFiltered(store.tweets.size()-1)){
+        let newTweet = store.tweets.all().slice(-1)[0]
+        heatmap(newTweet,clear);
+      }else {
+        heatmap(store.tweets.allFiltered([tweetsByLongitude,tweetsByLatitude]).filter(d => d.coords_source != 'Randomized'), clear)
+      }
+
+      timeline(tweets, clear)
+      timeofday(tweets, clear)
+      sentiment(tweets, clear)
+      topicView(tweets, clear)
+      userView(tweets, clear)
+      wordView(tweets, clear)
+      tweetsinfo(tweets)
+      generalinfo(store.tweets)
+
+      clear = false
+    })
+    
+    startWebSocket();
+
+    // remove old tweets every 10 minutes
+    /// setInterval(removeOldTweets, 1000*60*10)
+
+    // Automatically go through hashtags, user_mentions and topics
+
+    let interactionTimeout
+    let interactionInterval
+
+    function clearAllFilters(){
+      reseting = true
+      store.dimension.forEach(d => d.filter(null))
+      reseting = false
+      clear = true
+    }
+
+    function startInteractionInterval(){
+      console.log("Start auto interaction")
+      clearAllFilters()
+      interactionInterval = setInterval(selectNext, 1000*10)
+    }
+
+    d3.select('body').on('click', function(){
+      clearTimeout(interactionTimeout)
+      clearInterval(interactionInterval)
+
+      interactionTimeout = setTimeout(startInteractionInterval, 1000*60*3)
+    })
+
+    interactionTimeout = setTimeout(startInteractionInterval, 1000*60*3)
+  })();
+
+</script>
+</html>

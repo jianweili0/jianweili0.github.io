@@ -2,60 +2,82 @@
  * Adapted from https://bl.ocks.org/mbostock/3808234
  */
 
- /// in progress
-function TweetsInfo(id,width = 300, height = 300){
+function TweetsInfo(id, title = "Title", tweets, width = 300, height = 300, n=10){
 
+    const margin = {top: 20, right: 20, bottom: 0, left: 20},
+          bodyHeight = height -margin.top - margin.bottom,
+          bodyWidth = width - margin.left - margin.right
 
-	var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+    const yScale = d3.scaleBand()
+          .range([bodyHeight, 0])
+          .domain(tweets.slice(-n).map(d => d.id_str))
+          .padding(0.2)
 
-	var svg = d3.select(`#${id}`)
-				.attr('height',height)
-				.attr('width',width),
-	    g = svg.append("g").attr("transform","translate(" + 0 + "," + height/2 + ")");
+	const svg = d3.select(`#${id}`)
+						.attr("width",width)
+						.attr("height",height),
+        body = svg.append('g')
+                .style("transform",`translate(${margin.left}px,${margin.top}px)`),
 
-	function update(data) {
-	  var t = d3.transition()
-	      .duration(750);
+        texts = body.selectAll("text")
+                .data(tweets.slice(-n))
+                .enter().append("text")
+                .style('fill-opacity',1)
+                .attr('font-size', "14px")
+                .attr("y", d => yScale(d.id_str) + 10)
+                .attr('alignment-baseline', 'middle')
+                .attr('x', 0)
+                .text(d => d.text)
+                .call(wrap, width)
 
-	  // JOIN new data with old elements.
-	  var text = g.selectAll("text")
-	    .data(data, function(d) { return d; });
+    svg.append("text")
+        .attr("x", margin.left)             
+        .attr("y", margin.top/2)
+        .attr("text-anchor", "start")
+        .attr('alignment-baseline', 'middle')
+        .style("font-size", "12px") 
+        .style("font-weight", "bold")  
+        .text(title);
 
-	  // EXIT old elements not present in new data.
-	  text.exit()
-	      .attr("class", "exit")
-	    .transition(t)
-	      .attr("y", 60)
-	      .style("fill-opacity", 1e-6)
-	      .remove();
+    // https://bl.ocks.org/mbostock/7555321
+    function wrap(text, width) {
+        text.each(function() {
+          var text = d3.select(this),
+              words = text.text().split(/\s+/).reverse(),
+              word,
+              line = [],
+              lineNumber = 0,
+              lineHeight = 1.1, // ems
+              y = text.attr("y"),
+              dy = 0,
+              tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+          while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+              line.pop();
+              tspan.text(line.join(" "));
+              line = [word];
+              tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            }
+          }
+        });
+      }
 
-	  // UPDATE old elements present in new data.
-	  text.attr("class", "update")
-	      .attr("y", 0)
-	      .style("fill-opacity", 1)
-	    .transition(t)
-	      .attr("x", function(d, i) { return i * 32; });
+    /**
+     *  Update Function
+     */
+    let prevInfo = undefined;
 
-	  // ENTER new elements present in new data.
-	  text.enter().append("text")
-	      .attr("class", "enter")
-	      .attr("dy", ".35em")
-	      .attr("y", -60)
-	      .attr("x", function(d, i) { return i * 32; })
-	      .style("fill-opacity", 1e-6)
-	      .text(function(d) { return d; })
-	    .transition(t)
-	      .attr("y", 0)
-	      .style("fill-opacity", 1);
-	}
+    function update(data) {
+        if (prevInfo !== data) {
+            
+            texts.data(data.slice(-n))
+                .text(d => d.text)
+                .call(wrap, bodyWidth)
 
-	// The initial display.
-	update(alphabet);
-
-	// Grab a random sample of letters from the alphabet, in alphabetical order.
-	d3.interval(function() {
-	  update(d3.shuffle(alphabet)
-	      .slice(0, Math.floor(Math.random() * 26))
-	      .sort());
-	}, 1500);
+            prevInfo = data;
+        }
+    }
+    return update;
 }

@@ -1,19 +1,18 @@
 function HeatMap(id, twts, width = 600, height = 600, onBrush) {
 
-    mapboxgl.accessToken = 'pk.eyJ1IjoicG1hbmRpb2xhYiIsImEiOiJjanIyNzZndWIwMDJnNDV1NGVyMDUxbzg2In0.RQeWOCc-u8MBvg9XR2r9EQ'
+    mapboxgl.accessToken = 'pk.eyJ1IjoiamlhbndlaWxpMCIsImEiOiJjanVkOThlMncwMHIyM3luemdsMGp0MWs5In0.5EWV1tuq2lWOJmI_x8Hirg'
+
 
     const container = d3.select(`#${id}`)
-        .attr("style", `width:${width}px; height: ${height}px;`)
-
+                        .attr('style',`width:${width}px; height:${height}px;`)
     //Setup mapbox-gl map
     const map = new mapboxgl.Map({
       container: id, // container id
       style: 'mapbox://styles/mapbox/light-v9',
-      center: [-73.975, 40.733],
+      center: [-73.975, 40.73],
       zoom: 11.8,
       interactive: true
     })
-
 
     //add NavigationControl & Geocoder
     map.addControl(new MapboxGeocoder({
@@ -22,7 +21,7 @@ function HeatMap(id, twts, width = 600, height = 600, onBrush) {
     }));
     map.addControl(new mapboxgl.NavigationControl());
 
-    const body = d3.select(map.getCanvasContainer())
+    const body  =d3.select(map.getCanvasContainer())
     const svg = body.append("svg")
         .attr('width', '100%')
         .attr('height', '100%')
@@ -35,17 +34,17 @@ function HeatMap(id, twts, width = 600, height = 600, onBrush) {
     function mapboxProjection(lonlat) {
         var p = map.project(new mapboxgl.LngLat(lonlat[0], lonlat[1]))
         return [p.x, p.y];
-    }
+      }
 
-    function mapboxUnProject(xy) {
+    function mapboxUnProject(xy){
         var lonlat = map.unproject(xy)
-        return [lonlat.lng, lonlat.lat];
+        return [lonlat.lng, lonlat.lat]
     }
 
     var geojson;
     var lock = false;
 
-    function getTweetsLenght() {
+    function getTweetsLength(){
         return geojson.features.length
     }
 
@@ -60,7 +59,7 @@ function HeatMap(id, twts, width = 600, height = 600, onBrush) {
             type: "heatmap",
             source: "tweets",
             paint: {
-                // 'heatmap-radius': [
+                                // 'heatmap-radius': [
                 //     "interpolate",
                 //     ["linear"],
                 //     ["number", getTweetsLenght()],
@@ -82,7 +81,6 @@ function HeatMap(id, twts, width = 600, height = 600, onBrush) {
                 //     10000, 1
                 //     ],
                 'heatmap-radius': 15,
-                'heatmap-intensity': 0.2,
                 'heatmap-opacity': 0.8,
                 'heatmap-color': [
                     "interpolate",
@@ -156,13 +154,11 @@ function HeatMap(id, twts, width = 600, height = 600, onBrush) {
     
             twtsSrc = map.getSource('tweets')
             if (twtsSrc) {
-    
                 twtsSrc.setData(geojson);
             }
         }
         lock = false
     }
-    
     setTweets(twts)
 
     function addTweet(tweet) {
@@ -195,8 +191,8 @@ function HeatMap(id, twts, width = 600, height = 600, onBrush) {
             addTweet(data)
         }
 
-        if (brushG && clear) {
-            brushG.call(brush.move, null);
+        if (brushG && clear){
+            brushG.call(brush.move, null)
         }
     }
     return update;

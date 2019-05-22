@@ -1,9 +1,10 @@
-function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
+function LineChart(id, dim, grp, width = 300, height = 300, onBrush) {
     
     /**
      *  Data
      */
-    const group = grp;
+    const dimension = dim,
+          group = grp;
 
     /**
      *  Config
@@ -15,22 +16,22 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
     /**
      *  Scales, transformers
      */
-    const xScale = d3.scaleLinear().range([0, innerWidth])
-                                   .domain([-1, 1]),
+    const xScale = d3.scaleTime().range([0, innerWidth])
+                                 .domain([group.all()[0].key, group.all()[group.size()-1].key]),
           yScale = d3.scaleLinear().range([innerHeight, 0])
-                                   .domain([0, group.top(2)[1].value]),
-          cScale = d3.scaleLinear().range(['red','yellow','green'])
-                                   .domain([-1,0,1])
+                                   .domain([0, group.top(1)[0].value]);
 
-    const tickLabels = {
-        '-1':'negative',
-        '0':'neutral',
-        '1':'positive'
-    }
-
-    const xAxis = d3.axisBottom(xScale)
-                    .ticks(2)
-                    .tickFormat(d => tickLabels[String(d)]);
+    const area = d3
+        .area()
+        .curve(d3.curveMonotoneX)
+        .x(function(d) {
+            return xScale(d.key);
+        })
+        .y0(innerHeight)
+        .y1(function(d) {
+            return yScale(d.value);
+        });
+    const xAxis = d3.axisBottom(xScale).ticks(7);
     const yAxis = d3.axisLeft(yScale).ticks(5);
 
     /**
@@ -45,32 +46,22 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
         .append("g")
         .attr("class", "focus")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    const bars = body.selectAll("rect")
-        .data(group.all())
-        .enter().append("rect")
-        .attr("height", d => innerHeight - yScale(d.value))
-        .attr("y", d => yScale(d.value))
-        .attr("x", (d) => xScale(d.key))
-        .attr("width", innerWidth/group.size())
-        .attr("fill", d => cScale(d.key))
+
+    const path = body.append("path")
+        .datum(group.all())
+        .attr("class", "area")
+        .attr("d", area);
+
     const xAxisView = body
         .append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + innerHeight + ")");
 
     const yAxisView = body.append("g").attr("class", "axis axis--y");
+
     xAxisView.call(xAxis);
     yAxisView.call(yAxis);
 
-    svg.append("text")
-    .attr("x", margin.left + 10)             
-    .attr("y", margin.top)
-    .attr("text-anchor", "start")
-    .attr('alignment-baseline', 'baseline')
-    .style("font-size", "12px") 
-    .style("font-weight", "bold")  
-    .text(title);
-    
     let brush = undefined;
     let brushG = undefined;
     if (onBrush) {
@@ -78,8 +69,6 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
             .brushX()
             .extent([[0, 0], [innerWidth, innerHeight]])
             .on("brush end", b => {
-                if (!d3.event.sourceEvent) return;
-
                 if (
                     d3.event.sourceEvent &&
                     d3.event.sourceEvent.type === "zoom"
@@ -103,21 +92,23 @@ function BarChart(id, title="Title", grp, width = 300, height = 300, onBrush) {
      */
     let prevInfo = undefined;
 
-    function update(data, clear) {
+    function update(data, selection) {
         if (prevInfo !== data) {
-            yScale.domain([0, Math.max(group.top(2)[1].value, 5)]);
+            xScale.domain([group.all()[0].key, group.all()[group.size()-1].key])
+            yScale.domain([0, group.top(1)[0].value]);
 
-            bars.data(group.all())
-                .attr("height", d => innerHeight - yScale(d.value))
-                .attr("y", d => yScale(d.value));
+            path.datum(group.all())
+                .attr("d", area);
 
+            xAxisView.call(xAxis);
             yAxisView.call(yAxis);
             prevInfo = data;
 
-            if (brushG && clear) {
-                brushG.call(brush.move, null);
+            if (brushG && selection) {
+                brushG.call(brush.move, selection.map(xScale, xScale));
             }
         }
     }
+
     return update;
 }

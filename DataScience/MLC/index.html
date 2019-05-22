@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<meta charset="utf-8">
+		<title>Machine Learning for Cities Project</title>
+		<meta name="description" content="The HTML5 Herald">
+		<meta name="author" content="SitePoint">
+
+		<!-- add mapbox css&js -->
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js'></script>
+		<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css" rel="stylesheet" />
+		<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.0.0/mapbox-gl-geocoder.min.js'></script>
+		<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.0.0/mapbox-gl-geocoder.css' type='text/css' />
+    <link rel="stylesheet" href="css/styles.css?v=1.0">
+    <style>
+    body {
+      margin:0;
+      padding:0;
+    }
+/*    #mapContainer { position:relative; top:0; bottom:0; width:60%;}*/
+
+    #mapContainer {
+       float:left;
+       width: 60%;
+       height: 100%;
+       position:absolute;
+       margin:0;
+       z-index:1;
+      }
+    </style>
+	</head>
+  <body>
+    <div id="mapContainer">
+      <div id="sidebar">
+        <div class="info-box">
+          <h3>Properties Value Prediction Visualization</h3>
+          <span id="address">Move the mouse over a lot for address and input different features</span><br/>
+          <span id="landuse"></span>
+        </div>
+        <div class="info-box">
+          <h3>Fly to Neighborhood</h3>
+          <!-- These buttons use data attributes, which we can easily pull using jquery -->
+          <button class="flyto" data-neighborhood="park-slope">Midtown</button>
+          <br>
+          <button class="flyto" data-neighborhood="morningside-heights">Morningside Heights</button>
+          <br>
+          <button class="flyto" data-neighborhood="fidi">East Harlem</button>
+          <br/>
+          <button class="flyto" data-neighborhood="greenpoint">Chelsea</button>
+        </div>
+        <div class="info-box legend">
+          <h3>Input Features</h3>
+          <!-- We'll programmatically make the legend here -->
+        </div>
+      </div>
+    </div>
+
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
+    <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+    <script src="js/scripts.js"></script>
+  </body>
+</html>
